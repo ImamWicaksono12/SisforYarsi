@@ -2,40 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+// SESUAIKAN: Hapus '\Auth' jika file LoginRequest.php ada di folder Requests langsung
+use App\Http\Requests\LoginRequest; 
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    protected $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     public function loginForm()
     {
         return view('auth.login');
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
-            $role = Auth::user()->role;
+        if ($this->authService->login($request->validated())) {
             
-            switch ($role) {
-                case 'admin':
-                    return redirect()->intended(route('admin.dashboard'));
-                case 'mahasiswa':
-                    return redirect()->intended(route('mahasiswa.dashboard'));
-                case 'kaprodi':
-                    return redirect()->intended(route('kaprodi.dashboard'));
-                case 'warek':
-                    return redirect()->intended(route('warek.dashboard'));
-                default:
-                    return redirect()->intended('/');
-            }
+            $redirectTo = $this->authService->getRedirectRoute();
+
+            return redirect()->intended($redirectTo);
         }
 
         return back()->withErrors([
@@ -43,13 +36,9 @@ class AuthController extends Controller
         ])->withInput($request->only('email'));
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
-        Auth::logout();
-        
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        
-        return redirect('/'); 
+        $this->authService->logout();
+        return redirect('/login');
     }
 }

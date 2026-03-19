@@ -2,25 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\Pendaftaran;
 use App\Models\Beasiswa;
 use App\Models\BerkasPendaftaran;
+use App\Services\PendaftaranService;
+use App\Http\Requests\PendaftaranRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
-use Exception;
 use Carbon\Carbon;
 
 class PendaftaranController extends Controller
 {
+    protected $pendaftaranService;
+
+    public function __construct(PendaftaranService $pendaftaranService)
+    {
+        $this->pendaftaranService = $pendaftaranService;
+    }
+
     /**
-     * List beasiswa aktif
+     * Menampilkan daftar beasiswa yang tersedia untuk mahasiswa.
      */
     public function index()
     {
         $data = Beasiswa::where('status', 'buka')
-                        ->where('tanggal_selesai', '>=', Carbon::today())
+                        ->where('tanggal_selesai', '>=', Carbon::today()) 
                         ->latest()
                         ->get();
 
@@ -28,134 +35,57 @@ class PendaftaranController extends Controller
     }
 
     /**
-     * Form daftar
+     * Menampilkan form pendaftaran untuk beasiswa tertentu.
      */
     public function daftar($id)
     {
         $beasiswa = Beasiswa::with('persyaratan')->findOrFail($id);
-        if ($beasiswa->status !== 'buka' || Carbon::now()->isAfter($beasiswa->tanggal_selesai)) {
-            return back()->with('error', 'Pendaftaran sudah ditutup.');
-        }
-
-        $mahasiswa = Auth::user()->mahasiswa;
-
-        if (!$mahasiswa) {
-            return redirect()->route('home')->with('error', 'Profil mahasiswa tidak ditemukan.');
-        }
-
-        $sudahDaftar = Pendaftaran::where('mahasiswa_id', $mahasiswa->id)
-            ->where('beasiswa_id', $id)
-            ->exists();
-
-        if ($sudahDaftar) {
-            return redirect()->route('mahasiswa.pendaftaran.riwayat')
-                ->with('error', 'Anda sudah mendaftar beasiswa ini.');
-        }
-
+        
         return view('mahasiswa.form_daftar', compact('beasiswa'));
     }
 
     /**
-     * Simpan pendaftaran
+     * Menyimpan data pendaftaran mahasiswa.
      */
-    public function store(Request $request, $id)
+    public function store(PendaftaranRequest $request, $id)
     {
         $beasiswa = Beasiswa::with('persyaratan')->findOrFail($id);
         $mahasiswa = Auth::user()->mahasiswa;
 
         if (!$mahasiswa) {
-            return back()->with('error', 'Data mahasiswa tidak ditemukan.');
+            return back()->with('error', 'Profil data mahasiswa tidak ditemukan. Silakan hubungi admin.');
         }
 
-        // VALIDASI
-        $rules = [
-            'ipk_manual' => 'required|numeric|between:0,4.00',
-            'semester'   => 'required|integer|between:1,14',
-        ];
-
-        foreach ($beasiswa->persyaratan as $syarat) {
-            $key = 'file_' . $syarat->id;
-            $rules[$key] = ($syarat->wajib ? 'required' : 'nullable') . '|file|mimes:pdf,jpg,jpeg,png|max:5120';
+        $exists = Pendaftaran::where('beasiswa_id', $id)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->exists();
+        
+        if ($exists) {
+            return redirect()->route('mahasiswa.pendaftaran.riwayat')->with('error', 'Anda sudah mendaftar pada program beasiswa ini.');
         }
 
-        $request->validate($rules);
+        $this->pendaftaranService->kirimPendaftaran(
+            $beasiswa, 
+            $mahasiswa, 
+            $request->validated(), 
+            $request->allFiles()
+        );
 
-        DB::beginTransaction();
-        $uploadedFiles = [];
-
-        try {
-            // mapping jalur
-            $jalur = match ($beasiswa->tipe_beasiswa) {
-                'fully_funded'   => 'seleksi',
-                'partial_funded' => 'mandiri_sk',
-                'one_shot'       => 'antrean',
-                default          => 'seleksi'
-            };
-
-            // simpan pendaftaran
-            $pendaftaran = Pendaftaran::create([
-                'mahasiswa_id'      => $mahasiswa->id,
-                'beasiswa_id'       => $id,
-                'semester'          => $request->semester,
-                'ipk_manual'        => $request->ipk_manual,
-                'jalur_pendaftaran' => $jalur,
-                'status'            => 'pending',
-                'tanggal_daftar'    => now(),
-            ]);
-
-            // upload berkas
-            foreach ($beasiswa->persyaratan as $syarat) {
-                $key = 'file_' . $syarat->id;
-
-                if ($request->hasFile($key)) {
-                    $file = $request->file($key);
-                    $folder = $mahasiswa->nim ?? 'USER_' . Auth::id();
-
-                    $filename = "SYARAT_{$syarat->id}_{$folder}_" . time() . '.' . $file->getClientOriginalExtension();
-
-                    $path = $file->storeAs("berkas_beasiswa/{$folder}", $filename, 'public');
-                    $uploadedFiles[] = $path;
-
-                    BerkasPendaftaran::create([
-                        'pendaftaran_id' => $pendaftaran->id,
-                        'persyaratan_id' => $syarat->id,
-                        'file_path'      => $path,
-                        'status_validasi'=> 'pending',
-                        'catatan'        => null
-                    ]);
-                }
-            }
-
-            DB::commit();
-
-            return redirect()->route('mahasiswa.pendaftaran.riwayat')
-                ->with('success', 'Pendaftaran berhasil dikirim!');
-
-        } catch (Exception $e) {
-
-            DB::rollBack();
-
-            foreach ($uploadedFiles as $file) {
-                Storage::disk('public')->delete($file);
-            }
-
-            return back()->withInput()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+        return redirect()->route('mahasiswa.pendaftaran.riwayat')->with('success', 'Pendaftaran berhasil dikirim!');
     }
 
     /**
-     * Riwayat
+     * Menampilkan riwayat pendaftaran mahasiswa yang sedang login.
      */
     public function riwayat()
     {
         $mahasiswa = Auth::user()->mahasiswa;
 
         if (!$mahasiswa) {
-            return redirect()->route('home');
+            return redirect()->route('mahasiswa.dashboard')->with('error', 'Data mahasiswa tidak ditemukan.');
         }
 
-        $data = Pendaftaran::with('beasiswa')
+        $data = Pendaftaran::with(['beasiswa', 'berkas'])
             ->where('mahasiswa_id', $mahasiswa->id)
             ->latest()
             ->get();
@@ -163,42 +93,52 @@ class PendaftaranController extends Controller
         return view('mahasiswa.riwayat', compact('data'));
     }
 
-    public function adminIndex()
+    /**
+     * FITUR BARU: Membatalkan pendaftaran.
+     */
+    public function cancel($id)
     {
-        $data = Pendaftaran::with(['mahasiswa.user', 'beasiswa'])
-            ->latest()
-            ->get();
+        $mahasiswa = Auth::user()->mahasiswa;
+        $pendaftaran = Pendaftaran::where('mahasiswa_id', $mahasiswa->id)->findOrFail($id);
 
-        return view('admin.pendaftaran.index', compact('data'));
+        $allowedStatus = ['pending', 'menunggu_kaprodi', 'menunggu_admin'];
+        
+        if (!in_array($pendaftaran->status, $allowedStatus)) {
+            return redirect()->back()->with('error', 'Pendaftaran sudah diproses dan tidak dapat dibatalkan.');
+        }
+
+        foreach ($pendaftaran->berkas as $berkas) {
+            if (Storage::disk('local')->exists($berkas->file_path)) {
+                Storage::disk('local')->delete($berkas->file_path);
+            }
+        }
+
+        $pendaftaran->delete();
+
+        return redirect()->back()->with('success', 'Pendaftaran Anda berhasil dibatalkan.');
     }
 
-    public function show($id)
+    /**
+     * Menampilkan file berkas secara aman.
+     */
+    public function viewFile($id)
     {
-        $pendaftaran = Pendaftaran::with([
-            'mahasiswa.user',
-            'mahasiswa.prodi',
-            'berkasPendaftaran.persyaratan',
-            'beasiswa'
-        ])->findOrFail($id);
+        $berkas = BerkasPendaftaran::findOrFail($id);
+        $pendaftaran = Pendaftaran::findOrFail($berkas->pendaftaran_id);
+        $user = Auth::user();
 
-        return view('admin.pendaftaran.show', compact('pendaftaran'));
-    }
+        // Keamanan: Cek kepemilikan berkas atau akses staf
+        $isOwner = ($user->role === 'mahasiswa' && $user->mahasiswa && $pendaftaran->mahasiswa_id === $user->mahasiswa->id);
+        $isAdmin = in_array($user->role, ['admin', 'kaprodi', 'warek']);
 
-    public function verifikasiAdmin(Request $request, $id)
-    {
-        $request->validate([
-            'status' => 'required|in:validasi_admin,ditolak',
-            'catatan' => 'nullable|string|max:500'
-        ]);
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
 
-        $pendaftaran = Pendaftaran::findOrFail($id);
+        if (!Storage::disk('local')->exists($berkas->file_path)) {
+            abort(404, 'File fisik tidak ditemukan di server.');
+        }
 
-        $pendaftaran->update([
-            'status' => $request->status,
-            'catatan_validasi' => $request->catatan,
-        ]);
-
-        return redirect()->route('admin.pendaftaran.index')
-            ->with('success', 'Status berhasil diperbarui.');
+        return response()->file(storage_path('app/' . $berkas->file_path));
     }
 }

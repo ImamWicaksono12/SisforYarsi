@@ -6,13 +6,8 @@
 
     <title>Form Pendaftaran Beasiswa</title>
 
-    <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -53,7 +48,12 @@
             <div class="card shadow border-0 card-custom">
                 <div class="card-body p-4 p-md-5">
 
-                    <!-- HEADER -->
+                    <div class="text-start mb-3">
+                        <a href="{{ route('mahasiswa.beasiswa') }}" class="text-decoration-none text-muted small">
+                            <i class="fas fa-chevron-left me-1"></i> Kembali ke Daftar
+                        </a>
+                    </div>
+
                     <div class="text-center mb-4">
                         <div class="icon-box mx-auto mb-3">
                             <i class="fas fa-file-signature"></i>
@@ -67,21 +67,18 @@
                         </span>
                     </div>
 
-                    <!-- ALERT SUCCESS -->
                     @if(session('success'))
                         <div class="alert alert-success">
                             {{ session('success') }}
                         </div>
                     @endif
 
-                    <!-- ALERT ERROR -->
                     @if(session('error'))
                         <div class="alert alert-danger">
                             {{ session('error') }}
                         </div>
                     @endif
 
-                    <!-- VALIDATION ERROR -->
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul class="mb-0 small">
@@ -92,7 +89,6 @@
                         </div>
                     @endif
 
-                    <!-- FORM -->
                     <form 
                         action="{{ route('mahasiswa.pendaftaran.store', $beasiswa->id) }}"
                         method="POST"
@@ -100,7 +96,6 @@
 
                         @csrf
 
-                        <!-- AKADEMIK -->
                         <div class="mb-4">
                             <h6 class="fw-bold mb-3">📘 Informasi Akademik</h6>
 
@@ -128,7 +123,6 @@
                             </div>
                         </div>
 
-                        <!-- UPLOAD -->
                         <div class="mb-4">
                             <h6 class="fw-bold mb-3">📂 Upload Berkas</h6>
 
@@ -138,11 +132,11 @@
                                     <div class="upload-box" onclick="this.querySelector('input').click()">
 
                                         <input type="file"
-                                            name="file_{{ $syarat->id }}"
-                                            class="d-none"
-                                            accept=".pdf,.jpg,.jpeg,.png"
-                                            {{ $syarat->wajib ? 'required' : '' }}
-                                            onchange="previewFile(this)">
+                                             name="file_{{ $syarat->id }}"
+                                             class="d-none"
+                                             accept=".pdf,.jpg,.jpeg,.png"
+                                             {{ $syarat->wajib ? 'required' : '' }}
+                                             onchange="previewFile(this)">
 
                                         <i class="fas fa-cloud-upload-alt fs-4 mb-2"></i>
 
@@ -165,7 +159,6 @@
                             </div>
                         </div>
 
-                        <!-- USER INFO -->
                         <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
                             <div class="avatar me-3">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
@@ -178,7 +171,6 @@
                             </div>
                         </div>
 
-                        <!-- BUTTON -->
                         <button type="submit" class="btn btn-primary w-100 btn-submit">
                             🚀 Kirim Pendaftaran
                         </button>

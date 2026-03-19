@@ -219,7 +219,7 @@
     <main class="main-content">
         <header class="d-flex justify-content-between align-items-center mb-5">
             <div>
-                <h2 class="fw-800 mb-1">Dashboard</h2>
+                <h2 class="fw-800 mb-1">{{ request()->routeIs('mahasiswa.dashboard') ? 'Dashboard' : 'Detail Layanan' }}</h2>
                 <p class="text-muted small">{{ date('l, d F Y') }}</p>
             </div>
             
@@ -231,7 +231,6 @@
                 <div class="profile-dropdown" id="profileTrigger">
                     <div class="glass-card py-2 px-3 d-flex align-items-center gap-3">
                         <div class="text-end d-none d-md-block">
-                            {{-- Data SSO/LDAP terintegrasi di sini --}}
                             <span class="d-block fw-bold small text-truncate" style="max-width: 150px;">{{ Auth::user()->name }}</span>
                             <span class="text-muted" style="font-size: 0.7rem;">{{ Auth::user()->mahasiswa->prodi->nama_prodi ?? 'Informatika' }} • {{ Auth::user()->mahasiswa->nim ?? 'N/A' }}</span>
                         </div>
@@ -243,8 +242,8 @@
                         <li><a href="#" class="dropdown-item-premium"><i class="bi bi-person-circle"></i> Detail Profil</a></li>
                         <li>
                             <a href="#" class="dropdown-item-premium logout-btn" 
-                               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                 <i class="bi bi-box-arrow-right"></i> Keluar / Logout
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="bi bi-box-arrow-right"></i> Keluar / Logout
                             </a>
                         </li>
                     </ul>
@@ -256,56 +255,63 @@
             </div>
         </header>
 
-        <div class="hero-banner shadow-lg mb-5">
-            <div class="row align-items-center">
-                <div class="col-lg-7">
-                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-2 mb-3">Sistem Informasi Beasiswa</span>
-                    <h1 class="fw-800 mb-3">Halo, {{ explode(' ', Auth::user()->name)[0] }}! 👋</h1>
-                    <p class="opacity-75 mb-4">Pantau terus status pengajuan beasiswa Anda di Universitas YARSI melalui dashboard ini.</p>
-                    <a href="{{ route('mahasiswa.beasiswa') }}" class="btn btn-light rounded-pill px-4 fw-bold text-primary shadow-sm">Lihat Beasiswa</a>
-                </div>
-                <div class="col-lg-5 text-center d-none d-lg-block">
-                    <div class="display-3 fw-800">100%</div>
-                    <p class="small opacity-75">Keamanan SSO Terjamin</p>
+        {{-- BAGIAN INI HANYA MUNCUL DI DASHBOARD UTAMA --}}
+        @if(request()->routeIs('mahasiswa.dashboard'))
+            <div class="hero-banner shadow-lg mb-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-2 mb-3">Sistem Informasi Beasiswa</span>
+                        <h1 class="fw-800 mb-3">Halo, {{ explode(' ', Auth::user()->name)[0] }}! 👋</h1>
+                        <p class="opacity-75 mb-4">Pantau terus status pengajuan beasiswa Anda di Universitas YARSI melalui dashboard ini.</p>
+                        <a href="{{ route('mahasiswa.beasiswa') }}" class="btn btn-light rounded-pill px-4 fw-bold text-primary shadow-sm">Lihat Beasiswa</a>
+                    </div>
+                    <div class="col-lg-5 text-center d-none d-lg-block">
+                        <div class="display-3 fw-800">100%</div>
+                        <p class="small opacity-75">Keamanan SSO Terjamin</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="glass-card h-100">
-                    <p class="text-muted small fw-bold mb-1">BEASISWA TERSEDIA</p>
-                    <h2 class="fw-800 mb-0">{{ $countBeasiswa ?? 0 }}</h2>
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="glass-card h-100">
+                        <p class="text-muted small fw-bold mb-1">BEASISWA TERSEDIA</p>
+                        <h2 class="fw-800 mb-0">{{ $countBeasiswa ?? 0 }}</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-card h-100 border-primary border-opacity-25">
+                        <p class="text-muted small fw-bold mb-1">PENGAJUAN SAYA</p>
+                        <h2 class="fw-800 mb-0">{{ $countPengajuan ?? 0 }}</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-card h-100">
+                        <p class="text-muted small fw-bold mb-1">STATUS TERAKHIR</p>
+                        <h2 class="fw-800 mb-0" style="font-size: 1.2rem;">
+                            @if(($lastStatus ?? '') == 'diterima')
+                                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Diterima</span>
+                            @elseif(($lastStatus ?? '') == 'pending')
+                                <span class="text-warning"><i class="bi bi-clock-history me-1"></i> Menunggu</span>
+                            @else
+                                <span class="text-muted small">Belum ada data</span>
+                            @endif
+                        </h2>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="glass-card h-100 border-primary border-opacity-25">
-                    <p class="text-muted small fw-bold mb-1">PENGAJUAN SAYA</p>
-                    <h2 class="fw-800 mb-0">{{ $countPengajuan ?? 0 }}</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="glass-card h-100">
-                    <p class="text-muted small fw-bold mb-1">STATUS TERAKHIR</p>
-                    <h2 class="fw-800 mb-0" style="font-size: 1.2rem;">
-                        @if(($lastStatus ?? '') == 'diterima')
-                            <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Diterima</span>
-                        @elseif(($lastStatus ?? '') == 'pending')
-                            <span class="text-warning"><i class="bi bi-clock-history me-1"></i> Menunggu</span>
-                        @else
-                            <span class="text-muted small">Belum ada data</span>
-                        @endif
-                    </h2>
-                </div>
-            </div>
-        </div>
 
-        <div class="glass-card">
-            <h5 class="fw-800 mb-4">Tren Pendaftaran Beasiswa</h5>
-            <div style="height: 300px;">
-                <canvas id="mainChart"></canvas>
+            <div class="glass-card mb-5">
+                <h5 class="fw-800 mb-4">Tren Pendaftaran Beasiswa</h5>
+                <div style="height: 300px;">
+                    <canvas id="mainChart"></canvas>
+                </div>
             </div>
-        </div>
+        @endif
+
+        {{-- TEMPAT ISI HALAMAN LAIN (RIWAYAT, LIST, DLL) --}}
+        @yield('content')
+        
     </main>
 
     <script>
@@ -313,10 +319,12 @@
         const profileTrigger = document.getElementById('profileTrigger');
         const profileMenu = document.getElementById('profileMenu');
 
-        profileTrigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            profileMenu.classList.toggle('show');
-        });
+        if (profileTrigger) {
+            profileTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileMenu.classList.toggle('show');
+            });
+        }
 
         window.addEventListener('click', () => {
             profileMenu.classList.remove('show');
@@ -329,46 +337,49 @@
             const isDark = body.getAttribute('data-theme') === 'dark';
             body.setAttribute('data-theme', isDark ? 'light' : 'dark');
             icon.className = isDark ? 'bi bi-moon-stars-fill' : 'bi bi-sun-fill';
-            updateChart(!isDark);
+            if (typeof updateChart === "function") updateChart(!isDark);
         }
 
-        // --- CHART JS (DIISI DATA REAL-TIME) ---
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        let chart;
-        function initChart(isDark) {
-            if (chart) chart.destroy();
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: {!! json_encode($chartLabels ?? ['Jan', 'Feb', 'Mar']) !!},
-                    datasets: [{
-                        label: 'Total Pendaftar',
-                        data: {!! json_encode($chartData ?? [0, 0, 0]) !!},
-                        borderColor: '#6366f1',
-                        borderWidth: 4,
-                        tension: 0.4,
-                        fill: true,
-                        backgroundColor: isDark ? 'rgba(99, 102, 241, 0.05)' : 'rgba(99, 102, 241, 0.1)',
-                        pointRadius: 4,
-                        pointBackgroundColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { 
-                            grid: { color: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9' },
-                            ticks: { color: isDark ? '#94a3b8' : '#64748b', stepSize: 1 }
-                        },
-                        x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#64748b' } }
+        // --- CHART JS ---
+        const chartElement = document.getElementById('mainChart');
+        if (chartElement) {
+            const ctx = chartElement.getContext('2d');
+            let chart;
+            function initChart(isDark) {
+                if (chart) chart.destroy();
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: {!! json_encode($chartLabels ?? ['Jan', 'Feb', 'Mar']) !!},
+                        datasets: [{
+                            label: 'Total Pendaftar',
+                            data: {!! json_encode($chartData ?? [0, 0, 0]) !!},
+                            borderColor: '#6366f1',
+                            borderWidth: 4,
+                            tension: 0.4,
+                            fill: true,
+                            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.05)' : 'rgba(99, 102, 241, 0.1)',
+                            pointRadius: 4,
+                            pointBackgroundColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { 
+                                grid: { color: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9' },
+                                ticks: { color: isDark ? '#94a3b8' : '#64748b', stepSize: 1 }
+                            },
+                            x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#64748b' } }
+                        }
                     }
-                }
-            });
+                });
+            }
+            window.updateChart = function(isDark) { initChart(isDark); }
+            initChart(false);
         }
-        function updateChart(isDark) { initChart(isDark); }
-        initChart(false);
     </script>
 </body>
 </html>

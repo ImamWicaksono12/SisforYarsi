@@ -75,7 +75,8 @@
                         </div>
 
                         <div class="d-grid">
-                            <a href="{{ route('mahasiswa.daftar.form', $d->id) }}" class="btn btn-yarsi-primary py-2-5 fw-bold">
+                            {{-- FINAL FIX: Nama route disesuaikan dengan web.php --}}
+                            <a href="{{ route('mahasiswa.pendaftaran.form', $d->id) }}" class="btn btn-yarsi-primary py-2-5 fw-bold">
                                 Daftar Sekarang <i class="fas fa-arrow-right ms-2 small"></i>
                             </a>
                         </div>
@@ -259,10 +260,8 @@
                 const title = item.querySelector('.scholarship-title').textContent.toLowerCase();
                 const desc = item.querySelector('.scholarship-desc').textContent.toLowerCase();
                 
-                // Cek pencarian
                 const matchesSearch = title.includes(searchTerm) || desc.includes(searchTerm);
                 
-                // Cek filter kategori (Prestasi/Bantuan)
                 const matchesCategory = (activeFilter === 'all') || 
                     (title.includes(activeFilter)) || 
                     (desc.includes(activeFilter));
@@ -275,7 +274,6 @@
                 }
             });
 
-            // Tampilkan pesan jika tidak ada hasil
             if (visibleCount === 0) {
                 noResult.classList.remove('d-none');
             } else {
@@ -283,10 +281,8 @@
             }
         }
 
-        // Jalankan filter saat input diketik
         searchInput.addEventListener('input', applyFilters);
 
-        // Jalankan filter saat tombol kategori diklik
         filterBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 filterBtns.forEach(b => b.classList.remove('active'));

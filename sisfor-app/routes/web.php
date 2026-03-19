@@ -22,72 +22,73 @@ Route::view('/faq', 'public.faq')->name('public.faq');
 
 /*
 |--------------------------------------------------------------------------
-| AUTH ROUTES (LDAP & SSO Ready)
+| AUTH ROUTES
 |--------------------------------------------------------------------------
 */
 Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'loginForm')->name('login')->middleware('guest');
-    Route::post('/login', 'login');
-    Route::post('/logout', 'logout')->middleware('auth')->name('logout');
+    Route::post('/login', 'login')->middleware('guest');
+    Route::post('/logout', 'logout')->name('logout')->middleware('auth');
 });
 
 /*
 |--------------------------------------------------------------------------
-| DASHBOARD & ROLE-BASED ROUTES (Middleware Auth)
+| PROTECTED ROUTES (Requires Auth)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
-    /* --- ADMIN ROUTES --- 
-    */
-    Route::middleware('role:admin')->prefix('admin')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-        Route::resource('beasiswa', BeasiswaController::class)->names([
-            'index'   => 'admin.beasiswa.index',
-            'create'  => 'admin.beasiswa.create',
-            'store'   => 'admin.beasiswa.store',
-            'edit'    => 'admin.beasiswa.edit',
-            'update'  => 'admin.beasiswa.update',
-            'destroy' => 'admin.beasiswa.delete',
-        ]);
+    /* --- 1. ADMIN ROUTES --- */
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        
+        Route::resource('beasiswa', BeasiswaController::class);
 
-        Route::controller(PendaftaranController::class)->prefix('pendaftaran')->group(function () {
-            Route::get('/', 'adminIndex')->name('admin.pendaftaran.index');
-            Route::get('/{id}/verifikasi', 'show')->name('admin.pendaftaran.show');
-            Route::put('/{id}/verifikasi', 'verifikasiAdmin')->name('admin.pendaftaran.verifikasi');
-            Route::get('/file/{id}', 'viewFile')->name('admin.pendaftaran.view-file');
+        Route::controller(PendaftaranController::class)->prefix('pendaftaran')->name('pendaftaran.')->group(function () {
+            Route::get('/', 'adminIndex')->name('index');
+            Route::get('/{id}', 'show')->name('show');
+            Route::post('/{id}/verifikasi', 'verifikasiAdmin')->name('verifikasi');
+            Route::get('/file/{id}', 'viewFile')->name('view-file');
         });
     });
 
-    /* --- MAHASISWA ROUTES --- 
-    */
-    Route::middleware('role:mahasiswa')->prefix('mahasiswa')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'mahasiswaIndex'])->name('mahasiswa.dashboard');
+    /* --- 2. MAHASISWA ROUTES --- */
+    Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'mahasiswaIndex'])->name('dashboard');
         
         Route::controller(PendaftaranController::class)->group(function () {
-            Route::get('/beasiswa', 'index')->name('mahasiswa.beasiswa');
-            Route::get('/daftar/{id}', 'daftar')->name('mahasiswa.pendaftaran.form'); 
-            Route::post('/daftar/{id}/store', 'store')->name('mahasiswa.pendaftaran.store');
+            // Dashboard daftar beasiswa yang tersedia
+            Route::get('/beasiswa', 'index')->name('beasiswa');
             
-            Route::get('/riwayat', 'riwayat')->name('mahasiswa.pendaftaran.riwayat');
+            // Proses pendaftaran
+            Route::get('/daftar/{id}', 'daftar')->name('pendaftaran.form'); 
+            Route::post('/daftar/{id}', 'store')->name('pendaftaran.store'); 
+            
+            // Riwayat & Pembatalan
+            Route::get('/riwayat', 'riwayat')->name('pendaftaran.riwayat');
+            // INI PERBAIKANNYA: Tambahkan route pembatalan
+            Route::delete('/riwayat/{id}/cancel', 'cancel')->name('pendaftaran.cancel');
+            
+            // Akses File
+            Route::get('/berkas/{id}', 'viewFile')->name('pendaftaran.view-file');
         });
     });
 
-    /* --- KAPRODI ROUTES --- 
-    */
-    Route::middleware('role:kaprodi')->prefix('kaprodi')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'kaprodiIndex'])->name('kaprodi.dashboard');
+    /* --- 3. KAPRODI ROUTES --- */
+    Route::middleware('role:kaprodi')->prefix('kaprodi')->name('kaprodi.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'kaprodiIndex'])->name('dashboard');
         
-        Route::controller(PendaftaranController::class)->group(function () {
-            Route::get('/verifikasi', 'kaprodiIndex')->name('kaprodi.verifikasi.index');
-            Route::put('/verifikasi/{id}', 'verifikasiKaprodi')->name('kaprodi.verifikasi.proses');
+        Route::controller(PendaftaranController::class)->prefix('verifikasi')->name('verifikasi.')->group(function () {
+            Route::get('/', 'kaprodiIndex')->name('index');
+            Route::put('/{id}', 'verifikasiKaprodi')->name('proses');
+            Route::get('/file/{id}', 'viewFile')->name('view-file');
         });
     });
 
-    /* --- WAREK ROUTES --- 
-    */
-    Route::middleware('role:warek')->prefix('warek')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'warekIndex'])->name('warek.dashboard');
-        Route::get('/laporan', [PendaftaranController::class, 'monitoringWarek'])->name('warek.monitoring');
+    /* --- 4. WAREK ROUTES --- */
+    Route::middleware('role:warek')->prefix('warek')->name('warek.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'warekIndex'])->name('dashboard');
+        Route::get('/laporan', [PendaftaranController::class, 'monitoringWarek'])->name('monitoring');
+        Route::get('/file/{id}', [PendaftaranController::class, 'viewFile'])->name('view-file');
     });
 });

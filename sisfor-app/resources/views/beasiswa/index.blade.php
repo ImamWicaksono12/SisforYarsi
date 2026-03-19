@@ -142,6 +142,7 @@
     </div>
 
     <div class="card p-4 mb-4 border-0">
+        {{-- PERBAIKAN: Menambahkan prefix admin. --}}
         <form method="GET" action="{{ route('admin.beasiswa.index') }}" class="row g-3">
             <div class="col-md-5">
                 <div class="input-group">
@@ -160,6 +161,7 @@
             </div>
             <div class="col-md-4 d-flex gap-2">
                 <button type="submit" class="btn btn-primary flex-grow-1">Terapkan Filter</button>
+                {{-- PERBAIKAN: Menambahkan prefix admin. --}}
                 <a href="{{ route('admin.beasiswa.index') }}" class="btn btn-light border px-4" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></a>
             </div>
         </form>
@@ -180,7 +182,8 @@
             <table class="table mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4">Detail Program</th>
+                        <th class="ps-4">No</th>
+                        <th>Detail Program</th>
                         <th>Tipe Dana</th>
                         <th>Mulai Pendaftaran</th>
                         <th>Kuota</th>
@@ -189,9 +192,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($data as $d)
+                    @forelse($data as $key => $d)
                     <tr>
-                        <td class="ps-4">
+                        <td class="ps-4 fw-bold text-muted">
+                            {{ $data->firstItem() + $key }}
+                        </td>
+                        <td>
                             <div class="d-flex align-items-center gap-3">
                                 <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; background: #eef2ff;">
                                     <i class="bi bi-journal-bookmark-fill fs-5"></i>
@@ -229,11 +235,12 @@
                         </td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2">
-                                {{-- PERBAIKAN: Menggunakan named route sesuai web.php --}}
+                                {{-- PERBAIKAN: Menambahkan prefix admin. --}}
                                 <a href="{{ route('admin.beasiswa.edit', $d->id) }}" class="btn-action btn-edit" title="Edit Data">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
-                                <form action="{{ route('admin.beasiswa.delete', $d->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                {{-- PERBAIKAN: Menambahkan prefix admin. --}}
+                                <form action="{{ route('admin.beasiswa.destroy', $d->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-action btn-delete" title="Hapus Data">
@@ -245,7 +252,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <img src="https://illustrations.popsy.co/flat/empty-state.svg" style="width: 150px;" class="mb-3 opacity-50">
                             <h5 class="text-muted fw-bold">Belum ada beasiswa</h5>
                             <p class="text-muted small">Klik tombol "Tambah Program Baru" untuk memulai.</p>
@@ -258,7 +265,9 @@
     </div>
 
     <div class="d-flex justify-content-between align-items-center mt-4 px-2">
-        <p class="text-muted small mb-0">Menampilkan data ke-{{ $data->firstItem() }} dari {{ $data->total() }} total beasiswa</p>
+        <p class="text-muted small mb-0">
+            Menampilkan data ke-{{ $data->firstItem() ?? 0 }} dari {{ $data->total() ?? 0 }} total beasiswa
+        </p>
         <div class="pagination-premium">
             {{ $data->appends(request()->all())->links() }}
         </div>

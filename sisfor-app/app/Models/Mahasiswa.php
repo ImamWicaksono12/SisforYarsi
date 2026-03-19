@@ -17,6 +17,16 @@ class Mahasiswa extends Model
         'alamat'
     ];
 
+    /**
+     * ACCESSOR: Nama Mahasiswa
+     * Memungkinkan pemanggilan $mahasiswa->nama secara langsung
+     * Data diambil dari tabel users melalui relasi user_id
+     */
+    public function getNamaAttribute()
+    {
+        return $this->user->name ?? '-';
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -29,7 +39,8 @@ class Mahasiswa extends Model
 
     public function pendaftaran()
     {
-        return $this->hasMany(Pendaftaran::class);
+        // Mendefinisikan foreign key secara eksplisit jika diperlukan
+        return $this->hasMany(Pendaftaran::class, 'mahasiswa_id');
     }
 
     public function antrean()

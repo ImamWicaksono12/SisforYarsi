@@ -13,8 +13,9 @@ class BerkasPendaftaran extends Model
     protected $fillable = [
         'pendaftaran_id',
         'persyaratan_id', 
+        'nama_berkas',    // <--- TAMBAHKAN INI (WAJIB)
         'file_path',
-        'status_berkas'  
+        'status_berkas'   
     ];
 
     /**
@@ -27,7 +28,6 @@ class BerkasPendaftaran extends Model
 
     /**
      * Relasi ke Master Persyaratan
-     * Memungkinkan kita mengambil nama persyaratan (Contoh: "KTP", "IPK")
      */
     public function persyaratan()
     {
