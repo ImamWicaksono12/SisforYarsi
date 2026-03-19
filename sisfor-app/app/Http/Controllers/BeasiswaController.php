@@ -10,41 +10,33 @@ use Illuminate\Support\Facades\DB;
 
 class BeasiswaController extends Controller
 {
-    // Menampilkan daftar beasiswa dengan filter dan pagination
     public function index(Request $request)
     {
         $query = Beasiswa::query();
 
-        // Filter berdasarkan search
         if ($search = $request->input('search')) {
             $query->where('nama', 'like', "%{$search}%");
         }
 
-        // Filter berdasarkan status
         if ($status = $request->input('status')) {
             $query->where('status', $status);
         }
 
-        // Ambil data dengan relasi persyaratan, urut terbaru, 10 per halaman
         $data = $query->with('persyaratan')->latest()->paginate(10);
 
         return view('beasiswa.index', compact('data'));
     }
 
-    // Menampilkan form tambah beasiswa
     public function create()
     {
         return view('beasiswa.create');
     }
 
-    // Menampilkan form edit beasiswa
     public function edit($id)
     {
             $item = Beasiswa::with('persyaratan')->findOrFail($id);
                 return view('beasiswa.edit', compact('item'));
     }
-
-    // Simpan data beasiswa baru
     public function store(Request $request)
     {
         $validatedData = $request->validate([

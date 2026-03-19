@@ -33,8 +33,6 @@ class PendaftaranController extends Controller
     public function daftar($id)
     {
         $beasiswa = Beasiswa::with('persyaratan')->findOrFail($id);
-
-        // cek status & tanggal
         if ($beasiswa->status !== 'buka' || Carbon::now()->isAfter($beasiswa->tanggal_selesai)) {
             return back()->with('error', 'Pendaftaran sudah ditutup.');
         }
@@ -45,7 +43,6 @@ class PendaftaranController extends Controller
             return redirect()->route('home')->with('error', 'Profil mahasiswa tidak ditemukan.');
         }
 
-        // cek sudah daftar
         $sudahDaftar = Pendaftaran::where('mahasiswa_id', $mahasiswa->id)
             ->where('beasiswa_id', $id)
             ->exists();
@@ -121,7 +118,7 @@ class PendaftaranController extends Controller
 
                     BerkasPendaftaran::create([
                         'pendaftaran_id' => $pendaftaran->id,
-                        'persyaratan_id' => $syarat->id, // ✅ SESUAI ERD
+                        'persyaratan_id' => $syarat->id,
                         'file_path'      => $path,
                         'status_validasi'=> 'pending',
                         'catatan'        => null
@@ -165,8 +162,6 @@ class PendaftaranController extends Controller
 
         return view('mahasiswa.riwayat', compact('data'));
     }
-
-    /* ================= ADMIN ================= */
 
     public function adminIndex()
     {

@@ -42,16 +42,13 @@ class Beasiswa extends Model
     protected static function booted()
     {
         static::deleting(function ($beasiswa) {
-            // Menghapus otomatis semua persyaratan jika beasiswa dihapus
             $beasiswa->persyaratan()->delete();
-            // Menghapus otomatis data pendaftaran terkait untuk menjaga integritas
             $beasiswa->pendaftaran()->delete();
         });
     }
 
     public function persyaratan()
     {
-        // Menambahkan foreign key secara eksplisit jika diperlukan untuk keamanan relasi
         return $this->hasMany(PersyaratanBeasiswa::class, 'beasiswa_id');
     }
 

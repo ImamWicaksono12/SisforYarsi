@@ -9,7 +9,6 @@ class Pendaftaran extends Model
 {
     use HasFactory;
 
-    // Pastikan ini sesuai dengan nama tabel di phpMyAdmin Anda
     protected $table = 'pendaftaran'; 
 
     protected $fillable = [
@@ -18,11 +17,11 @@ class Pendaftaran extends Model
         'semester',
         'jalur_pendaftaran',
         'tanggal_daftar',
-        'status',           // Status: menunggu_admin, disetujui, ditolak
-        'catatan',          // Sesuai dengan yang ada di verifikasiAdmin
+        'status',           
+        'catatan',          
         'ipk_manual',
-        'essay',            // Jika digunakan
-        'file_sk_penetapan' // Jika digunakan di tahap akhir
+        'essay',           
+        'file_sk_penetapan' 
     ];
 
     protected $casts = [

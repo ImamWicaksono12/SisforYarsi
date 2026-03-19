@@ -16,8 +16,9 @@ Route::get('/', function () {
 })->name('home');
 
 Route::view('/beasiswa', 'public.beasiswa')->name('public.beasiswa');
-Route::view('/faq', 'public.faq')->name('public.faq');
 Route::view('/alur', 'public.alur')->name('public.alur');
+Route::view('/bantuan', 'public.bantuan')->name('public.bantuan');
+Route::view('/faq', 'public.faq')->name('public.faq');
 
 /*
 |--------------------------------------------------------------------------
@@ -38,12 +39,9 @@ Route::controller(AuthController::class)->group(function () {
 Route::middleware(['auth'])->group(function () {
 
     /* --- ADMIN ROUTES --- 
-       Otoritas final untuk verifikasi pendaftaran (Kaprodi -> Admin).
     */
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-
-        // CRUD Master Data Beasiswa
         Route::resource('beasiswa', BeasiswaController::class)->names([
             'index'   => 'admin.beasiswa.index',
             'create'  => 'admin.beasiswa.create',
@@ -53,7 +51,6 @@ Route::middleware(['auth'])->group(function () {
             'destroy' => 'admin.beasiswa.delete',
         ]);
 
-        // Verifikasi Pendaftaran FINAL oleh Admin
         Route::controller(PendaftaranController::class)->prefix('pendaftaran')->group(function () {
             Route::get('/', 'adminIndex')->name('admin.pendaftaran.index');
             Route::get('/{id}/verifikasi', 'show')->name('admin.pendaftaran.show');
@@ -63,38 +60,31 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /* --- MAHASISWA ROUTES --- 
-       Sinkron dengan View Formulir Pendaftaran & LDAP.
     */
     Route::middleware('role:mahasiswa')->prefix('mahasiswa')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'mahasiswaIndex'])->name('mahasiswa.dashboard');
         
         Route::controller(PendaftaranController::class)->group(function () {
-            // Menampilkan daftar beasiswa
             Route::get('/beasiswa', 'index')->name('mahasiswa.beasiswa');
-            
-            // Mengarahkan ke form pendaftaran (FIXED: Menambah alias agar tidak error)
-            Route::get('/beasiswa/daftar/{id}', 'daftar')->name('mahasiswa.daftar.form'); // Dipanggil di daftar beasiswa
-            Route::get('/daftar/{id}', 'daftar')->name('mahasiswa.pendaftaran.form'); // Alias sinkronisasi
-            
-            // Proses simpan berkas
+            Route::get('/daftar/{id}', 'daftar')->name('mahasiswa.pendaftaran.form'); 
             Route::post('/daftar/{id}/store', 'store')->name('mahasiswa.pendaftaran.store');
             
-            // Riwayat status pendaftaran
             Route::get('/riwayat', 'riwayat')->name('mahasiswa.pendaftaran.riwayat');
         });
     });
 
     /* --- KAPRODI ROUTES --- 
-       Pemberi Verifikasi Tahap Pertama.
     */
     Route::middleware('role:kaprodi')->prefix('kaprodi')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'kaprodiIndex'])->name('kaprodi.dashboard');
-        Route::get('/verifikasi', [PendaftaranController::class, 'kaprodiIndex'])->name('kaprodi.verifikasi.index');
-        Route::put('/verifikasi/{id}', [PendaftaranController::class, 'verifikasiKaprodi'])->name('kaprodi.verifikasi.proses');
+        
+        Route::controller(PendaftaranController::class)->group(function () {
+            Route::get('/verifikasi', 'kaprodiIndex')->name('kaprodi.verifikasi.index');
+            Route::put('/verifikasi/{id}', 'verifikasiKaprodi')->name('kaprodi.verifikasi.proses');
+        });
     });
 
     /* --- WAREK ROUTES --- 
-       Hanya Monitoring (View Only) tanpa tombol approval.
     */
     Route::middleware('role:warek')->prefix('warek')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'warekIndex'])->name('warek.dashboard');

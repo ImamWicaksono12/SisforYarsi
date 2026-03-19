@@ -1,273 +1,326 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Beasiswa Yarsi</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sistem Informasi Beasiswa | Universitas Yarsi</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
-<style>
-body { font-family: 'Inter'; transition: 0.3s; }
-body.light { background:#f8fafc; color:#0f172a; }
-body.dark { background:#020617; color:#e2e8f0; }
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+            --yarsi-blue: #0d6efd;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-/* NAVBAR */
-.navbar { backdrop-filter: blur(12px); }
-body.light .navbar { background: rgba(255,255,255,0.8); }
-body.dark .navbar { background: rgba(2,6,23,0.8); }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            transition: background 0.4s ease, color 0.4s ease;
+        }
 
-/* HERO */
-.hero {
-    border-radius: 28px;
-    padding: 80px 60px;
-    background: linear-gradient(135deg,#4f46e5,#06b6d4);
-    color: white;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-}
+        body.light { background: #f8fafc; color: #1e293b; }
+        body.dark { background: #020617; color: #f1f5f9; }
 
-/* SECTION SPACING */
-section { margin-bottom: 100px; }
+        /* NAVBAR ENHANCEMENT */
+        .navbar {
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1.2rem 0;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 1050;
+        }
+        body.dark .navbar { background: rgba(2, 6, 23, 0.85); border-color: rgba(255,255,255,0.05); }
 
-/* CARD */
-.card-premium {
-    border-radius: 20px;
-    padding: 30px;
-    transition: all 0.3s ease;
-    height: 100%;
-}
-body.light .card-premium { background:white; }
-body.dark .card-premium { background:#0f172a; }
+        .nav-link-custom {
+            color: #64748b;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+        .nav-link-custom:hover, .nav-link-custom.active { color: var(--yarsi-blue); }
+        body.dark .nav-link-custom { color: #94a3b8; }
 
-.card-premium:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-}
+        /* HERO SECTION */
+        .hero-card {
+            border-radius: 40px;
+            padding: 80px 60px;
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 25px 50px -12px rgba(13, 110, 253, 0.25);
+            overflow: hidden;
+            position: relative;
+        }
 
-/* BUTTON */
-.btn-premium {
-    background: linear-gradient(135deg,#4f46e5,#06b6d4);
-    border: none;
-    color: white;
-    border-radius: 10px;
-}
+        /* CARD PREMIUM */
+        .card-premium {
+            border: 1px solid rgba(0,0,0,0.03);
+            border-radius: 24px;
+            padding: 40px 30px;
+            transition: var(--transition);
+            background: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        body.dark .card-premium { background: #0f172a; border-color: rgba(255,255,255,0.05); }
+        .card-premium:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: var(--yarsi-blue);
+        }
 
-/* FLOW STEP */
-.step {
-    padding: 25px;
-    border-radius: 15px;
-    font-weight: 600;
-}
-body.light .step { background:white; }
-body.dark .step { background:#0f172a; }
+        .btn-premium {
+            background: var(--primary-gradient);
+            border: none;
+            color: white !important;
+            padding: 12px 28px;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: var(--transition);
+        }
+        .btn-premium:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+        }
 
-/* SKELETON */
-.skeleton {
-    height:120px;
-    border-radius:10px;
-    background:#e2e8f0;
-    position:relative;
-    overflow:hidden;
-}
-body.dark .skeleton { background:#1e293b; }
+        /* STEP BADGE */
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(13, 110, 253, 0.1);
+            color: var(--yarsi-blue);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+        .card-step:hover .step-icon {
+            background: var(--yarsi-blue);
+            color: white;
+        }
 
-.skeleton::after {
-    content:"";
-    position:absolute;
-    width:200px;
-    height:100%;
-    left:-200px;
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
-    animation: shimmer 1.2s infinite;
-}
-@keyframes shimmer { 100%{ left:100%; } }
+        /* ANIMATIONS */
+        .skeleton-box {
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            height: 200px;
+            border-radius: 20px;
+        }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-/* TITLE */
-.section-title {
-    font-weight:800;
-    margin-bottom:40px;
-}
-
-/* TESTIMONI */
-.testimoni {
-    font-style: italic;
-    opacity:0.8;
-}
-
-/* FOOTER */
-footer {
-    border-top:1px solid rgba(0,0,0,0.1);
-}
-</style>
+        .section-title { font-weight: 800; letter-spacing: -1px; margin-bottom: 2.5rem; }
+    </style>
 </head>
 
 <body class="light">
 
-<!-- NAVBAR -->
-<nav class="navbar sticky-top py-3">
-<div class="container">
-    <a class="fw-bold text-primary">🎓 SI BEASISWA</a>
+<nav class="navbar sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url('/') }}" style="color: var(--yarsi-blue); font-size: 1.4rem;">
+            <i class="bi bi-mortarboard-fill me-2"></i> SISFOR YARSI
+        </a>
 
-    <div class="d-flex gap-2">
-        <button onclick="toggleDarkMode()" class="btn btn-outline-secondary">
-            <i id="iconMode" class="bi bi-moon"></i>
-        </button>
-        <a href="/login" class="btn btn-outline-primary">Masuk</a>
-        <a href="#" class="btn btn-premium">Daftar</a>
+        <div class="d-none d-lg-flex gap-4">
+            <a href="{{ url('/beasiswa') }}" class="nav-link-custom">Beasiswa</a>
+            <a href="{{ url('/alur') }}" class="nav-link-custom">Alur Pendaftaran</a>
+            <a href="{{ route('public.bantuan') }}" class="nav-link-custom">Pusat Bantuan</a>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <button onclick="toggleDarkMode()" class="btn btn-link text-secondary p-0 me-2 shadow-none">
+                <i id="iconMode" class="bi bi-moon-stars-fill fs-5"></i>
+            </button>
+            <a href="{{ route('login') }}" class="btn btn-premium px-4 rounded-pill shadow-sm">
+                Masuk <i class="bi bi-box-arrow-in-right ms-2"></i>
+            </a>
+        </div>
     </div>
-</div>
 </nav>
 
-<div class="container py-5">
+<main class="container py-5">
 
-<!-- HERO -->
-<div class="hero mb-5" data-aos="fade-up">
-    <div class="row align-items-center">
-        <div class="col-lg-6">
-            <h1 class="fw-bold mb-3">Raih Masa Depan Cerah 🚀</h1>
-            <p class="mb-4">Platform beasiswa modern untuk mahasiswa Indonesia.</p>
-            <button class="btn btn-light">Mulai Sekarang</button>
+    <section class="hero-card mb-5" data-aos="fade-up">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <span class="badge bg-white text-primary px-3 py-2 rounded-pill fw-bold mb-3">#MasaDepanYarsi</span>
+                <h1 class="display-5 fw-800 mb-3 text-white">Sistem Informasi Beasiswa Universitas Yarsi</h1>
+                <p class="lead opacity-90 mb-4 text-white">Kelola pendaftaran beasiswa Anda secara cerdas dengan integrasi data akademik yang otomatis dan transparan.</p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url('/beasiswa') }}" class="btn btn-light btn-lg px-4 fw-bold text-primary rounded-pill transition-all">
+                        Cari Beasiswa
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block text-center position-relative">
+                <img src="https://img.freepik.com/free-vector/graduation-concept-illustration_114360-1205.jpg" class="img-fluid rounded-4 shadow-lg" style="max-height: 350px; transform: rotate(2deg);">
+            </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<!-- PROFIL -->
-<section data-aos="fade-up">
-<div class="row align-items-center">
-    <div class="col-lg-6">
-        <h3 class="section-title">Tentang Kampus</h3>
-        <p class="text-muted">
-            Universitas Yarsi menyediakan pendidikan berkualitas dengan berbagai program beasiswa unggulan.
-        </p>
-    </div>
-    <div class="col-lg-6 text-center">
-        <img src="https://img.freepik.com/free-vector/university-concept-illustration_114360-1203.jpg" class="img-fluid rounded-4">
-    </div>
-</div>
-</section>
-
-<!-- SKELETON -->
-<div id="skeleton" class="row g-4">
-    <div class="col-md-4"><div class="card-premium"><div class="skeleton"></div></div></div>
-    <div class="col-md-4"><div class="card-premium"><div class="skeleton"></div></div></div>
-    <div class="col-md-4"><div class="card-premium"><div class="skeleton"></div></div></div>
-</div>
-
-<!-- BEASISWA -->
-<section id="content" style="display:none;">
-<h3 class="section-title text-center">Program Beasiswa</h3>
-
-<div class="row g-4 justify-content-center">
-
-    <div class="col-md-4">
-        <div class="card-premium text-center">
-            <h5 class="mb-3">Prestasi</h5>
-            <button class="btn btn-premium btn-sm">Daftar</button>
+    <section class="py-5" data-aos="fade-up">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 order-2 order-lg-1">
+                <img src="https://img.freepik.com/free-vector/university-concept-illustration_114360-1203.jpg" class="img-fluid rounded-5 shadow-sm">
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2">
+                <h2 class="section-title">Tentang Beasiswa Yarsi</h2>
+                <p class="text-muted fs-5 mb-4">
+                    Komitmen kami adalah memastikan setiap mahasiswa berprestasi dan yang membutuhkan mendapatkan kesempatan pendidikan terbaik melalui dukungan finansial yang tepat sasaran.
+                </p>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 border rounded-4 bg-white bg-opacity-50">
+                            <i class="bi bi-fingerprint text-primary fs-3 mb-2"></i>
+                            <h6 class="fw-bold">Login LDAP/SSO</h6>
+                            <p class="small text-muted mb-0">Keamanan data terjamin dengan akun resmi.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 border rounded-4 bg-white bg-opacity-50">
+                            <i class="bi bi-lightning-charge text-primary fs-3 mb-2"></i>
+                            <h6 class="fw-bold">Sinkronisasi IPK</h6>
+                            <p class="small text-muted mb-0">Data akademik ditarik otomatis dari sistem.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
+
+    <div id="skeleton" class="row g-4 mb-5">
+        <div class="col-md-4"><div class="skeleton-box"></div></div>
+        <div class="col-md-4"><div class="skeleton-box"></div></div>
+        <div class="col-md-4"><div class="skeleton-box"></div></div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card-premium text-center">
-            <h5 class="mb-3">KIP-K</h5>
-            <button class="btn btn-premium btn-sm">Daftar</button>
+    <section id="content" style="display:none;" class="py-5">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Program Unggulan</h2>
+            <p class="text-muted">Pilih kategori beasiswa yang sesuai dengan kualifikasi Anda.</p>
         </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-premium text-center">
+                    <div class="fs-1 mb-3">🏆</div>
+                    <h4 class="fw-bold">Prestasi Akademik</h4>
+                    <p class="text-muted small px-3">Potongan biaya kuliah hingga 50% bagi mahasiswa dengan pencapaian IPK luar biasa.</p>
+                    <a href="{{ url('/beasiswa') }}" class="btn btn-outline-primary rounded-pill mt-auto">Lihat Detail</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-premium text-center">
+                    <div class="fs-1 mb-3">🎓</div>
+                    <h4 class="fw-bold">Beasiswa KIP-K</h4>
+                    <p class="text-muted small px-3">Bantuan biaya pendidikan dari pemerintah bagi mahasiswa yang memiliki keterbatasan ekonomi.</p>
+                    <a href="{{ url('/beasiswa') }}" class="btn btn-outline-primary rounded-pill mt-auto">Lihat Detail</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-premium text-center">
+                    <div class="fs-1 mb-3">📖</div>
+                    <h4 class="fw-bold">Beasiswa Tahfidz</h4>
+                    <p class="text-muted small px-3">Apresiasi khusus bagi penghafal Al-Qur'an sebagai bagian dari nilai Islami Yarsi.</p>
+                    <a href="{{ url('/beasiswa') }}" class="btn btn-outline-primary rounded-pill mt-auto">Lihat Detail</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-primary bg-opacity-5 rounded-5 p-4 p-md-5">
+        <h2 class="section-title text-center mb-5">Langkah Pendaftaran</h2>
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card-step text-center">
+                    <div class="step-icon shadow-sm">1</div>
+                    <h6 class="fw-bold">Login SSO</h6>
+                    <p class="small text-muted">Masuk dengan akun mahasiswa aktif</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-step text-center">
+                    <div class="step-icon shadow-sm">2</div>
+                    <h6 class="fw-bold">Pilih Program</h6>
+                    <p class="small text-muted">Sesuaikan dengan kriteria prestasi</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-step text-center">
+                    <div class="step-icon shadow-sm">3</div>
+                    <h6 class="fw-bold">Upload Berkas</h6>
+                    <p class="small text-muted">Unggah sertifikat dan dokumen asli</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-step text-center">
+                    <div class="step-icon shadow-sm">4</div>
+                    <h6 class="fw-bold">Hasil Seleksi</h6>
+                    <p class="small text-muted">Pantau status via dashboard</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url('/alur') }}" class="btn btn-primary rounded-pill px-5 py-3 fw-bold">
+                Panduan Lengkap <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="py-5 border-top text-center text-muted mt-5 bg-white bg-opacity-50">
+    <div class="container">
+        <div class="mb-3">
+            <i class="bi bi-mortarboard-fill fs-2 text-primary"></i>
+        </div>
+        <p class="mb-1 fw-bold text-dark">© 2026 Sistem Informasi Beasiswa Yarsi</p>
+        <p class="small mb-0">Pusat Data dan Informasi Universitas Yarsi</p>
     </div>
-
-</div>
-</section>
-
-<!-- ALUR -->
-<section class="text-center">
-<h3 class="section-title">Alur Pendaftaran</h3>
-
-<div class="row g-4">
-    <div class="col-md-3"><div class="step">1. Daftar</div></div>
-    <div class="col-md-3"><div class="step">2. Isi Data</div></div>
-    <div class="col-md-3"><div class="step">3. Upload</div></div>
-    <div class="col-md-3"><div class="step">4. Seleksi</div></div>
-</div>
-</section>
-
-<!-- FAQ -->
-<section>
-<h3 class="section-title text-center">FAQ</h3>
-
-<div class="accordion">
-    <div class="accordion-item">
-        <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#faq1">
-            Siapa bisa daftar?
-        </button>
-        <div id="faq1" class="accordion-collapse collapse show">
-            <div class="accordion-body">Mahasiswa aktif.</div>
-        </div>
-    </div>
-</div>
-</section>
-
-<!-- TESTIMONI -->
-<section class="text-center">
-<h3 class="section-title">Testimoni</h3>
-<p class="testimoni">"Beasiswa ini membantu saya mencapai mimpi!"</p>
-</section>
-
-<!-- SLIDER -->
-<section class="text-center">
-<h3 class="section-title">Prestasi Mahasiswa</h3>
-
-<div id="slider" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <h2>🏆 Juara Nasional</h2>
-        </div>
-        <div class="carousel-item">
-            <h2>🌍 Publikasi Internasional</h2>
-        </div>
-    </div>
-</div>
-</section>
-
-</div>
-
-<footer class="text-center py-4">
-© 2026 Beasiswa Yarsi
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 
 <script>
-AOS.init();
+    AOS.init({ duration: 800, once: true });
 
-function toggleDarkMode() {
-    let body = document.body;
-    let icon = document.getElementById("iconMode");
+    function toggleDarkMode() {
+        let body = document.body;
+        let icon = document.getElementById("iconMode");
+        body.classList.toggle("dark");
+        body.classList.toggle("light");
 
-    body.classList.toggle("dark");
-    body.classList.toggle("light");
-
-    if (body.classList.contains("dark")) {
-        icon.classList.replace("bi-moon","bi-sun");
-        localStorage.setItem("theme","dark");
-    } else {
-        icon.classList.replace("bi-sun","bi-moon");
-        localStorage.setItem("theme","light");
-    }
-}
-
-window.onload = () => {
-    if(localStorage.getItem("theme")==="dark"){
-        document.body.classList.replace("light","dark");
-        document.getElementById("iconMode").classList.replace("bi-moon","bi-sun");
+        if (body.classList.contains("dark")) {
+            icon.classList.replace("bi-moon-stars-fill", "bi-sun-fill");
+            localStorage.setItem("theme", "dark");
+        } else {
+            icon.classList.replace("bi-sun-fill", "bi-moon-stars-fill");
+            localStorage.setItem("theme", "light");
+        }
     }
 
-    setTimeout(()=>{
-        document.getElementById("skeleton").style.display="none";
-        document.getElementById("content").style.display="block";
-    },1200);
-}
+    window.onload = () => {
+        if(localStorage.getItem("theme") === "dark") {
+            document.body.classList.replace("light", "dark");
+            document.getElementById("iconMode").classList.replace("bi-moon-stars-fill", "bi-sun-fill");
+        }
+        
+        setTimeout(() => {
+            document.getElementById("skeleton").style.display = "none";
+            document.getElementById("content").style.display = "block";
+            AOS.refresh();
+        }, 800);
+    }
 </script>
 
 </body>

@@ -8,15 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class BerkasPendaftaran extends Model
 {
     use HasFactory;
-
-    // Pastikan nama tabel di DB sama persis
     protected $table = 'berkas_pendaftaran';
 
     protected $fillable = [
         'pendaftaran_id',
         'persyaratan_id', 
         'file_path',
-        'status_berkas'   // Default: 'menunggu'
+        'status_berkas'  
     ];
 
     /**
@@ -33,7 +31,6 @@ class BerkasPendaftaran extends Model
      */
     public function persyaratan()
     {
-        // Pastikan nama model ini (PersyaratanBeasiswa) sudah benar
         return $this->belongsTo(PersyaratanBeasiswa::class, 'persyaratan_id');
     }
 }

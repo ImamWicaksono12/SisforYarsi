@@ -24,7 +24,6 @@ class AuthController extends Controller
 
             $role = Auth::user()->role;
             
-            // Redirect berdasarkan role
             switch ($role) {
                 case 'admin':
                     return redirect()->intended(route('admin.dashboard'));

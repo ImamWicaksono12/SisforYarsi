@@ -10,12 +10,10 @@ class PersyaratanBeasiswaSeeder extends Seeder
 {
     public function run(): void
     {
-        // Ambil semua beasiswa yang ada
         $beasiswas = Beasiswa::all();
 
         foreach ($beasiswas as $index => $beasiswa) {
 
-            // Mapping persyaratan berdasarkan urutan / contoh
             $persyaratanList = match($index) {
                 0 => [
                     ['nama' => 'KHS', 'wajib' => true],
