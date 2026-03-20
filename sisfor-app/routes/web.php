@@ -41,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
     /* --- 1. ADMIN ROUTES --- */
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        
+
         Route::resource('beasiswa', BeasiswaController::class);
 
         Route::controller(PendaftaranController::class)->prefix('pendaftaran')->name('pendaftaran.')->group(function () {
@@ -55,20 +55,20 @@ Route::middleware(['auth'])->group(function () {
     /* --- 2. MAHASISWA ROUTES --- */
     Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'mahasiswaIndex'])->name('dashboard');
-        
+
         Route::controller(PendaftaranController::class)->group(function () {
             // Dashboard daftar beasiswa yang tersedia
             Route::get('/beasiswa', 'index')->name('beasiswa');
-            
+
             // Proses pendaftaran
-            Route::get('/daftar/{id}', 'daftar')->name('pendaftaran.form'); 
-            Route::post('/daftar/{id}', 'store')->name('pendaftaran.store'); 
-            
+            Route::get('/daftar/{id}', 'daftar')->name('pendaftaran.form');
+            Route::post('/daftar/{id}', 'store')->name('pendaftaran.store');
+
             // Riwayat & Pembatalan
             Route::get('/riwayat', 'riwayat')->name('pendaftaran.riwayat');
             // INI PERBAIKANNYA: Tambahkan route pembatalan
             Route::delete('/riwayat/{id}/cancel', 'cancel')->name('pendaftaran.cancel');
-            
+
             // Akses File
             Route::get('/berkas/{id}', 'viewFile')->name('pendaftaran.view-file');
         });
@@ -77,7 +77,7 @@ Route::middleware(['auth'])->group(function () {
     /* --- 3. KAPRODI ROUTES --- */
     Route::middleware('role:kaprodi')->prefix('kaprodi')->name('kaprodi.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'kaprodiIndex'])->name('dashboard');
-        
+
         Route::controller(PendaftaranController::class)->prefix('verifikasi')->name('verifikasi.')->group(function () {
             Route::get('/', 'kaprodiIndex')->name('index');
             Route::put('/{id}', 'verifikasiKaprodi')->name('proses');
