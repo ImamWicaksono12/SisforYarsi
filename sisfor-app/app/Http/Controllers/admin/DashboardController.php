@@ -22,11 +22,11 @@ class DashboardController extends Controller
         $stats = $this->dashboardService->getAdminStats();
 
         return view('dashboard.admin', [
-            'totalBeasiswa'      => $stats['widgets']['totalBeasiswa'],
-            'pendaftarAktif'     => $stats['widgets']['pendaftarAktif'],
-            'menungguValidasi'   => $stats['widgets']['menungguValidasi'],
-            'totalDiterima'      => $stats['widgets']['totalDiterima'],
-            'trenPendaftaran'    => $stats['tren'],
+            'totalBeasiswa' => $stats['widgets']['totalBeasiswa'],
+            'pendaftarAktif' => $stats['widgets']['pendaftarAktif'],
+            'menungguValidasi' => $stats['widgets']['menungguValidasi'],
+            'totalDiterima' => $stats['widgets']['totalDiterima'],
+            'trenPendaftaran' => $stats['tren'],
             'distribusiFakultas' => $stats['distribusiFakultas'],
             'pendaftaranTerbaru' => $stats['terbaru']
         ]);
@@ -45,5 +45,12 @@ class DashboardController extends Controller
         $stats = $this->dashboardService->getMahasiswaStats($user->mahasiswa);
 
         return view('dashboard.mahasiswa', $stats);
+    }
+
+    public function kaprodiIndex()
+    {
+        $stats = $this->dashboardService->getAdminStats();
+
+        return view('dashboard.kaprodi', $stats);
     }
 }
